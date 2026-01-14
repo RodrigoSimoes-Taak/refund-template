@@ -1,11 +1,17 @@
-const { querySelector } = require("svgo");
-
 const form = document.querySelector('form');
 const value = document.getElementById('amount');
 const expenseName = document.getElementById('expense');
 const category = document.getElementById("category");
+
 const expenseList = document.querySelector("ul")
+expenseList.addEventListener("click", function(event){
+    if (event.target.classList.contains('remove-icon')){
+        removeExpense(event.target.closest('.expense'));
+    }
+})
+
 const totalExpenses = document.querySelector("aside header p span")
+const totalExpenseValue = document.querySelector('aside header h2')
 
 value.oninput = () =>
 {
@@ -34,6 +40,8 @@ form.onsubmit = (event) => {
         createdDate: new Date()
 
     }
+
+    form.reset()
 
     expenseAdd(newExpense);
     updateTotalExpense();
@@ -86,6 +94,7 @@ function expenseAdd(newExpense){
 }
 function updateTotalExpense(){
     try {
+        
         const expenses = expenseList.children
         
         totalExpenses.textContent = `${expenses.length} ${expenses.length > 1 ? "despesas" : "despesa"}`
@@ -93,14 +102,26 @@ function updateTotalExpense(){
         let total = 0
 
         for (let i = 0; i < expenses.length; ++i){
-            const valueString = expenses[i].textContent.replace(/[ˆ\d]/g,'').replace(',', '.')
-            total += parseFloat(value)
+            const item = expenses[i].querySelector(".expense-amount")
+            const valueString = item.textContent.replace(/[^\d,]/g,'').replace(',', '.')
+            total += parseFloat(valueString)
         }
+
+        totalExpenseValue.textContent = formatCurrencyBRL(total)
+
+
+
+        
         
 
     } 
     catch (error) {
         console.log(error)
     }
+
+}
+function removeExpense(target){
+    target.remove()
+    updateTotalExpense()
 
 }
